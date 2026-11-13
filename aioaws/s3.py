@@ -146,6 +146,8 @@ class S3Client:
         )
         r = await self._aws_client.post('', data=xml.encode(), params=dict(delete=1), content_type='text/xml')
         xml_root = ElementTree.fromstring(xmlns_re.sub(b'', r.content))
+        if xml_root.find('Error') is not None:
+            raise RequestError(r)
         return [k.find('Key').text for k in xml_root]  # pyright: ignore[reportReturnType,reportOptionalMemberAccess]
 
     def signed_download_url(
