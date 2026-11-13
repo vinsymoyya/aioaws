@@ -3,7 +3,6 @@ import json
 import logging
 import mimetypes
 import re
-from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime
 from email.encoders import encode_base64
@@ -146,15 +145,12 @@ class SesClient:
             'RawMessage.Data': base64.b64encode(email_msg.as_string().encode()),
         }
 
-        def add_addresses(name: str, addresses: Iterable[str]) -> None:
-            form_data.update({f'Destination.{name}.member.{i}': t.encode() for i, t in enumerate(addresses, start=1)})
-
-        if to:
-            add_addresses('ToAddresses', (r.email for r in to))
-        if cc:
-            add_addresses('CcAddresses', (r.email for r in cc))
-        if bcc:
-            add_addresses('BccAddresses', (r.email for r in bcc))
+        form_data.update(
+            {
+                f'Destinations.member.{i}': recipient.email.encode()
+                for i, recipient in enumerate([*to, *cc, *bcc], start=1)
+            }
+        )
 
         data = urlencode(form_data).encode()
         r = await self._aws_client.post('/', data=data)
