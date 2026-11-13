@@ -175,7 +175,7 @@ class AWSv4Auth:
         headers = {
             'content-md5': base64.b64encode(hashlib.md5(data).digest()).decode(),
             'content-type': content_type,
-            'host': url.host,
+            'host': url.netloc.decode(),
             'x-amz-date': _aws4_x_amz_date(now),
         }
 
