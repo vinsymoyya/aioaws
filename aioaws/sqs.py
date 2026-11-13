@@ -125,9 +125,9 @@ class SQSClient:
                     receipt_handle=message_data['ReceiptHandle'],
                     md5_of_body=message_data['MD5OfBody'],
                     body=message_data['Body'],
-                    attributes=message_data['Attributes'],
+                    attributes=message_data.get('Attributes', {}),
                 )
-                for message_data in resp.json()['ReceiveMessageResponse']['ReceiveMessageResult']['messages'] or ()
+                for message_data in resp.json()['ReceiveMessageResponse']['ReceiveMessageResult'].get('messages') or ()
             ]
 
     async def change_visibility(self, message: SQSMessage, timeout: int) -> None:
