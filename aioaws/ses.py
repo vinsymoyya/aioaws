@@ -177,9 +177,11 @@ async def prepare_attachment(a: SesAttachment) -> tuple[MIMEBase, int]:
         filename = a.file.name
     filename = filename or 'attachment'
 
-    mime_type, encoding = mimetypes.guess_type(filename)
-    if mime_type is None or encoding is not None:
-        mime_type = 'application/octet-stream'
+    mime_type = a.mime_type
+    if mime_type is None:
+        mime_type, encoding = mimetypes.guess_type(filename)
+        if mime_type is None or encoding is not None:
+            mime_type = 'application/octet-stream'
     maintype, subtype = mime_type.split('/', 1)
 
     if isinstance(a.file, Path):
