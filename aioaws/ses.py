@@ -226,7 +226,7 @@ class SesWebhookInfo:
             logger.warning('invalid JSON in SNS notification', extra={'data': {'request': payload.request_data}})
             return None
 
-        event_type = message['eventType'].lower()
+        event_type = (message.get('eventType') or message['notificationType']).lower()
 
         if event_type not in {'send', 'delivery', 'open', 'click', 'bounce', 'complaint'}:
             logger.warning(
