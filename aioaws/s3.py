@@ -158,9 +158,9 @@ class S3Client:
         """
         assert not path.startswith('/'), 'path should not start with /'
         url = URL(f'{self._aws_client.endpoint}/{path}')
-        url = self._aws_client.add_signed_download_params(method, url, max_age)
         if version:
             url = url.copy_add_param('v', version)
+        url = self._aws_client.add_signed_download_params(method, url, max_age)
         return str(url)
 
     async def download(self, file: str | S3File, version: str | None = None) -> bytes:
