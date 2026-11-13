@@ -175,7 +175,7 @@ class AWSv4Auth:
         headers = {
             'content-md5': base64.b64encode(hashlib.md5(data).digest()).decode(),
             'content-type': content_type,
-            'host': url.host,
+            'host': url.netloc.decode(),
             'x-amz-date': _aws4_x_amz_date(now),
         }
 
@@ -193,10 +193,11 @@ class AWSv4Auth:
     ) -> tuple[str, str]:
         header_keys = sorted(headers)
         signed_headers = ';'.join(header_keys)
+        query_params = sorted((url_quote(k, safe=''), url_quote(v, safe='')) for k, v in url.params.multi_items())
         canonical_request_parts = (
             method,
             url_quote(url.path),
-            url.query.decode(),
+            '&'.join(f'{k}={v}' for k, v in query_params),
             ''.join(f'{k}:{headers[k]}\n' for k in header_keys),
             signed_headers,
             payload_hash,

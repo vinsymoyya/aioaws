@@ -8,7 +8,9 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Literal
+from urllib.parse import quote
 from xml.etree import ElementTree
+from xml.sax.saxutils import escape
 
 from httpx2 import URL, AsyncClient
 from pydantic import BaseModel, ConfigDict, field_validator
@@ -136,14 +138,17 @@ class S3Client:
         https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObjects.html
         """
         assert len(files) <= 1000, f'_delete_1000_files can delete 1000 files max, not {len(files)}'
+        keys = (escape(to_key(k), {'\r': '&#13;'}) for k in files)
         xml = (
             f'<?xml version="1.0" encoding="UTF-8"?>'
             f'<Delete xmlns="{xmlns}">'
-            f' {"".join(f"<Object><Key>{to_key(k)}</Key></Object>" for k in files)}'
+            f' {"".join(f"<Object><Key>{key}</Key></Object>" for key in keys)}'
             f'</Delete>'
         )
         r = await self._aws_client.post('', data=xml.encode(), params=dict(delete=1), content_type='text/xml')
         xml_root = ElementTree.fromstring(xmlns_re.sub(b'', r.content))
+        if xml_root.find('Error') is not None:
+            raise RequestError(r)
         return [k.find('Key').text for k in xml_root]  # pyright: ignore[reportReturnType,reportOptionalMemberAccess]
 
     def signed_download_url(
@@ -157,10 +162,10 @@ class S3Client:
         https://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html#RESTAuthenticationQueryStringAuth
         """
         assert not path.startswith('/'), 'path should not start with /'
-        url = URL(f'{self._aws_client.endpoint}/{path}')
-        url = self._aws_client.add_signed_download_params(method, url, max_age)
+        url = URL(f'{self._aws_client.endpoint}/{quote(path, safe="/")}')
         if version:
             url = url.copy_add_param('v', version)
+        url = self._aws_client.add_signed_download_params(method, url, max_age)
         return str(url)
 
     async def download(self, file: str | S3File, version: str | None = None) -> bytes:
