@@ -134,7 +134,7 @@ class SQSClient:
         queue_url = await self._get_queue_url()
         if timeout >= MAX_VISIBILITY_TIMEOUT:
             raise ValueError(f'timeout value range is 0 to {MAX_VISIBILITY_TIMEOUT}, got {timeout}')
-        await self._client.post(
+        resp = await self._client.post(
             url=queue_url,
             params={
                 'Action': 'ChangeMessageVisibility',
@@ -146,6 +146,7 @@ class SQSClient:
                 'Accept': 'application/json',
             },
         )
+        resp.raise_for_status()
 
     async def delete_message(self, message: SQSMessage) -> None:
         queue_url = await self._get_queue_url()
