@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Literal
+from urllib.parse import quote
 from xml.etree import ElementTree
 from xml.sax.saxutils import escape
 
@@ -161,7 +162,7 @@ class S3Client:
         https://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html#RESTAuthenticationQueryStringAuth
         """
         assert not path.startswith('/'), 'path should not start with /'
-        url = URL(f'{self._aws_client.endpoint}/{path}')
+        url = URL(f'{self._aws_client.endpoint}/{quote(path, safe="/")}')
         url = self._aws_client.add_signed_download_params(method, url, max_age)
         if version:
             url = url.copy_add_param('v', version)
