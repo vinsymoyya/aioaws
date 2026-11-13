@@ -132,7 +132,7 @@ class SQSClient:
 
     async def change_visibility(self, message: SQSMessage, timeout: int) -> None:
         queue_url = await self._get_queue_url()
-        if timeout >= MAX_VISIBILITY_TIMEOUT:
+        if not 0 <= timeout <= MAX_VISIBILITY_TIMEOUT:
             raise ValueError(f'timeout value range is 0 to {MAX_VISIBILITY_TIMEOUT}, got {timeout}')
         resp = await self._client.post(
             url=queue_url,
