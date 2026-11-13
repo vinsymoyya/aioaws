@@ -193,10 +193,11 @@ class AWSv4Auth:
     ) -> tuple[str, str]:
         header_keys = sorted(headers)
         signed_headers = ';'.join(header_keys)
+        query_params = sorted((url_quote(k, safe=''), url_quote(v, safe='')) for k, v in url.params.multi_items())
         canonical_request_parts = (
             method,
             url_quote(url.path),
-            url.query.decode(),
+            '&'.join(f'{k}={v}' for k, v in query_params),
             ''.join(f'{k}:{headers[k]}\n' for k in header_keys),
             signed_headers,
             payload_hash,

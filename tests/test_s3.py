@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 import pytest
 from dirty_equals import IsNow, IsStr
 from foxglove.testing import DummyServer
-from httpx2 import AsyncClient, Limits
+from httpx2 import URL, AsyncClient, Limits
 
 from aioaws.core import RequestError
 from aioaws.s3 import S3Client, S3Config, S3File, to_key
@@ -191,7 +191,8 @@ def test_aws4_download_signature(client: AsyncClient, mocker):
         '&X-Amz-Signature=762f4fcbacec730d460b0e337f554e569e4fe98643baefad7af1276fe3084e7f'
     )
     url2 = s3.signed_download_url('test.txt', max_age=86400, version='foobar')
-    assert url2 == url + '&v=foobar'
+    assert URL(url2).params['v'] == 'foobar'
+    assert URL(url2).params['X-Amz-Signature'] != URL(url).params['X-Amz-Signature']
 
 
 def test_aws4_upload_signature(client: AsyncClient, mocker):
