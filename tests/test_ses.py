@@ -208,7 +208,7 @@ async def test_attachment_email_with_html(client: AsyncClient, aws: DummyServer)
             rb'this is the <b>html body</b>\.\n\n'
             rb'--===============\2==--\n\n'
             rb'--===============\1==\n'
-            rb'Content-Type: text/plain\n'
+            rb'Content-Type: application/pdf\n'
             rb'MIME-Version: 1\.0\n'
             rb'Content-Transfer-Encoding: base64\n'
             rb'Content-Disposition: attachment; filename="testing\.txt"\n\n'
