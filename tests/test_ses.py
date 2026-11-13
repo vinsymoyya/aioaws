@@ -34,7 +34,7 @@ async def test_send(client: AsyncClient, aws: DummyServer):
         'Action': 'SendRawEmail',
         'Source': 'testing@sender.com',
         'RawMessage.Data': IsStr(),
-        'Destination.ToAddresses.member.1': 'testing@recipient.com',
+        'Destinations.member.1': 'testing@recipient.com',
     }
     assert eml['email'] == {
         'Subject': 'test email',
@@ -153,12 +153,12 @@ async def test_send_names(client: AsyncClient, aws: DummyServer):
         'Action': 'SendRawEmail',
         'Source': 'testing@sender.com',
         'RawMessage.Data': IsStr(),
-        'Destination.ToAddresses.member.1': 'testing@example.com',
-        'Destination.CcAddresses.member.1': 'cc1@example.com',
-        'Destination.CcAddresses.member.2': 'cc2@example.com',
-        'Destination.CcAddresses.member.3': 'cc3@example.com',
-        'Destination.CcAddresses.member.4': 'cc4@example.com',
-        'Destination.BccAddresses.member.1': 'bcc@exmaple.com',
+        'Destinations.member.1': 'testing@example.com',
+        'Destinations.member.2': 'cc1@example.com',
+        'Destinations.member.3': 'cc2@example.com',
+        'Destinations.member.4': 'cc3@example.com',
+        'Destinations.member.5': 'cc4@example.com',
+        'Destinations.member.6': 'bcc@exmaple.com',
     }
     assert eml['email'] == {
         'Subject': 'test email',
